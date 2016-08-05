@@ -1,7 +1,7 @@
 #include "make_hitemp_histograms.C"
 #include <string>
 
-void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tecp_filelist, TString tecm_filelist, TString datelist){
+void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tecp_filelist, TString tecm_filelist, TString datelist, TString output_prefix){
    vector<TString> tob_files;
    vector<TString> tib_files;
    vector<TString> tecp_files;
@@ -99,13 +99,13 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    Int_t num_files = rundates.size();
    // Loop over the files and produce all histograms, putting them in individual output files 
    for (Int_t i = 0; i < num_files; i++) {
-      TString tob_output_filename = "tob_hitemp_output_" + to_string(i) + ".root";
+      TString tob_output_filename = "tob_" + output_prefix + "_" + to_string(i) + ".root";
       make_hitemp_histograms(tob_files[i],tob_output_filename,rundates[i],offset,end,numtimebins);
-      TString tib_output_filename = "tib_hitemp_output_" + to_string(i) + ".root"; 
+      TString tib_output_filename = "tib_" + output_prefix + "_" + to_string(i) + ".root"; 
       make_hitemp_histograms(tib_files[i],tib_output_filename,rundates[i],offset,end,numtimebins);
-      TString tecp_output_filename = "tecp_hitemp_output_" + to_string(i) + ".root"; 
+      TString tecp_output_filename = "tecp_" + output_prefix + "_" + to_string(i) + ".root"; 
       make_hitemp_histograms(tecp_files[i],tecp_output_filename,rundates[i],offset,end,numtimebins);
-      TString tecm_output_filename = "tecm_hitemp_output_" + to_string(i) + ".root"; 
+      TString tecm_output_filename = "tecm_" + output_prefix + "_" + to_string(i) + ".root"; 
       make_hitemp_histograms(tecm_files[i],tecm_output_filename,rundates[i],offset,end,numtimebins);
    }
 
