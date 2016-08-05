@@ -1,16 +1,13 @@
-void draw(const TString tob_filename, const TString tib_filename, const TString tecp_filename, const TString tecm_filename, const TDatime offset) {
+void draw(const TString tob_filename, const TString tob_refnum, const TString tib_filename, const TString tib_refnum, const TString tecp_filename, const TString tecp_refnum, const TString tecm_filename, const TString tecm_refnum, const Int_t offsetdate) {
    TFile *tob = new TFile(tob_filename);
    TFile *tib = new TFile(tib_filename);
    TFile *tecp = new TFile(tecp_filename);
    TFile *tecm = new TFile(tecm_filename); 
 
-   TString tob_ref = "9/2010";
-   TString tib_ref = "2/2010";
-   TString tecp_ref = "3/2010";
-   TString tecm_ref = "3/2010";
-  
+   offset = TDatime(offsetdate,000000);
    gStyle->SetTimeOffset(offset.Convert());
    gStyle->SetPalette(1);
+   gStyle->SetPadGridY(1);
  
    Int_t number_of_hists = 8;
    TString *hist_names = new TString[number_of_hists];
@@ -44,7 +41,7 @@ void draw(const TString tob_filename, const TString tib_filename, const TString 
       TString newtitle = "TOB " + title;
       tob_hists[i]->SetTitle(newtitle);
 
-      TString xtitle = "Run date (Ref = " + tob_ref + ")";
+      TString xtitle = "Run date (Ref = " + tob_refnum + ")";
       tob_hists[i]->SetXTitle(xtitle);
    }
 
@@ -59,7 +56,7 @@ void draw(const TString tob_filename, const TString tib_filename, const TString 
       TString newtitle = "TIB " + title;
       tib_hists[i]->SetTitle(newtitle);
 
-      TString xtitle = "Run date (Ref = " + tib_ref + ")";
+      TString xtitle = "Run date (Ref = " + tib_refnum + ")";
       tib_hists[i]->SetXTitle(xtitle);   
    }
 
@@ -74,7 +71,7 @@ void draw(const TString tob_filename, const TString tib_filename, const TString 
       TString newtitle = "TECP " + title;
       tecp_hists[i]->SetTitle(newtitle);
 
-      TString xtitle = "Run date (Ref = " + tecp_ref + ")";
+      TString xtitle = "Run date (Ref = " + tecp_refnum + ")";
       tecp_hists[i]->SetXTitle(xtitle);   
    }
 
@@ -89,7 +86,7 @@ void draw(const TString tob_filename, const TString tib_filename, const TString 
       TString newtitle = "TECM " + title;
       tecm_hists[i]->SetTitle(newtitle);
 
-      TString xtitle = "Run date (Ref = " + tecm_ref + ")";
+      TString xtitle = "Run date (Ref = " + tecm_refnum + ")";
       tecm_hists[i]->SetXTitle(xtitle);   
    }
 
