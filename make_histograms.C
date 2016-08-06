@@ -4,10 +4,13 @@
 #include "TH2.h"
 #include "TString.h"
 
-void make_lowtemp_histograms(const TString run_filename, const TString output_filename, const TDatime da, const Int_t offset, const Int_t end, const Int_t numtimebins)
+void make_histograms(const TString run_filepath, const TString output_filename, const TDatime da, const Int_t offset, const Int_t end, const Int_t numtimebins)
 {
    Int_t this_run = da.Convert()-offset;
-   // extract the run number from the filename to use in the tree name
+   // extract the filename from the filepath 
+   Ssiz_t namestart = run_filepath.Last("/")+1;
+   TString run_filename( run_filepath(namestart+1,run_filepath.Length())
+   // extract the run number from the filename 
    Int_t position = 9; // the position after the first "GAINSCAN_" in the default filename produced by tkCommissioner
    Ssiz_t first = run_filename.Index('_',position);
    Ssiz_t last = run_filename.Last('_');
@@ -73,28 +76,28 @@ void make_lowtemp_histograms(const TString run_filename, const TString output_fi
    // create the histograms
    TH2D *th_diffmeasgain = new TH2D("th_diffmeasgain",
       "DiffMeasgain0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70, -10, 30);
+      numtimebins,0,end,50, -10, 10);
    TH2D *th_diffbias = new TH2D("th_diffbias",
       "DiffBias0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,60,-30,0);
+      numtimebins,0,end,50,-10,10);
    TH2D *th_diffliftoff = new TH2D("th_diffliftoff",
       "DiffLiftoff0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,60,-40,-10);
+      numtimebins,0,end,60,-15,15);
    TH2D *th_diffthreshold = new TH2D("th_diffthreshold",
       "DiffThreshold0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70,-50,-10);
+      numtimebins,0,end,70,-20,20);
    TH2D *th_diffbaselineslop = new TH2D("th_diffbaselineslop",
       "DiffBaselineslope0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,60,-15,25);
+      numtimebins,0,end,50,-10,10);
    TH2D *th_difftickheight = new TH2D("th_difftickheight",
       "DiffTickheight0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70,-10,30);
+      numtimebins,0,end,50,-10,10);
    TH2D *th_difflinknoise = new TH2D("th_difflinknoise",
       "DiffLinknoise0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70,-20,20);
+      numtimebins,0,end,80,-25,25);
    TH2D *th_diffzerolight = new TH2D("th_diffzerolight",
       "DiffZerolight0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,60,-15,15);
+      numtimebins,0,end,70,-20,20);
 
 
    //read all run entries and fill the histograms
