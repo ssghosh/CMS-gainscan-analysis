@@ -4,12 +4,38 @@
 #include "TH2.h"
 #include "TString.h"
 
-void make_histograms(const TString run_filepath, const TString output_filename, const TDatime da, const Int_t offset, const Int_t end, const Int_t numtimebins)
+void make_histograms(const TString run_filepath, const TString output_filename, const TDatime da, const Int_t offset, const Int_t end, const Int_t numtimebins, const TString yaxisparamfile)
 {
+   vector<vector<Int_t>> yaxis_params;
+   std::string line;
+
+   std::ifstream yaxis_reader(yaxisparamfile);
+
+   if (!yaxis_reader.is_open()){
+      cout << "y-axis parameter file can't be opened" << endl;
+   }   
+
+   while (std::getline(yaxis_reader, line)){
+      if (line.length() == 0) continue;
+      // tokenize the line, store in a list, and push the list onto the params vector
+      char *c_line = new char[line.length()+1];
+      strcpy(c_line, line.c_str());
+      char *current;
+      current = strtok(c_line," ");
+      yaxis_params.push_back(vector<Int_t>());
+      while (current != NULL) {
+         cout << "current is " << current << endl; 
+         yaxis_params.back().push_back(std::stoi(current));
+         current = strtok(NULL," ");
+      }   
+   }   
+   cout << "yaxis_params has " << yaxis_params.size() << " vectors" << endl;
+   yaxis_reader.close();
    Int_t this_run = da.Convert()-offset;
    // extract the filename from the filepath 
-   Ssiz_t namestart = run_filepath.Last("/")+1;
-   TString run_filename( run_filepath(namestart+1,run_filepath.Length())
+   Ssiz_t namestart = run_filepath.Last('/')+1;
+   TString run_directory( run_filepath(0,namestart) );
+   TString run_filename( run_filepath(namestart,run_filepath.Length()));
    // extract the run number from the filename 
    Int_t position = 9; // the position after the first "GAINSCAN_" in the default filename produced by tkCommissioner
    Ssiz_t first = run_filename.Index('_',position);
@@ -20,7 +46,7 @@ void make_histograms(const TString run_filepath, const TString output_filename, 
 
    // get filename and tree name for run data 
    TString tree_name("Tree_04_" + run_number);
-   TFile *run = new TFile(run_filename.Data());
+   TFile *run = new TFile(run_filepath.Data());
    TTree *run_tree = (TTree*)run->Get(tree_name.Data());
    
    // set up run variables
@@ -46,7 +72,7 @@ void make_histograms(const TString run_filepath, const TString output_filename, 
    run_tree->SetBranchAddress("Isvalid",&run_isvalid);
 
    // Construct the filename of the reference run
-   TString ref_filename("GAINSCAN_GAINSCAN_" + ref_number + "_" + ref_number + ".root");
+   TString ref_filename(run_directory + "GAINSCAN_GAINSCAN_" + ref_number + "_" + ref_number + ".root");
    TString ref_treename("Tree_04_" + ref_number);
    TFile *ref = new TFile(ref_filename.Data());
    TTree *ref_tree = (TTree*)ref->Get(ref_treename.Data());
@@ -74,30 +100,33 @@ void make_histograms(const TString run_filepath, const TString output_filename, 
    ref_tree->SetBranchAddress("Isvalid",&ref_isvalid);
 
    // create the histograms
+   //cout << "y-axis params are " << to_string(yaxis_params[0][0]) << ", " << to_string(yaxis_params[0][1]) << ", " << to_string(yaxis_params[0][2]) << endl;
+
+   //cout << "y-axis params are " << to_string(yaxis_params[3][0]) << ", " << to_string(yaxis_params[3][1]) << ", " << to_string(yaxis_params[3][2]) << endl;
    TH2D *th_diffmeasgain = new TH2D("th_diffmeasgain",
       "DiffMeasgain0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,50, -10, 10);
+      numtimebins,0,end,yaxis_params[0][0], yaxis_params[0][1], yaxis_params[0][2]);
    TH2D *th_diffbias = new TH2D("th_diffbias",
       "DiffBias0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,50,-10,10);
+      numtimebins,0,end,yaxis_params[1][0], yaxis_params[1][1], yaxis_params[1][2]);
    TH2D *th_diffliftoff = new TH2D("th_diffliftoff",
       "DiffLiftoff0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,60,-15,15);
+      numtimebins,0,end,yaxis_params[2][0], yaxis_params[2][1], yaxis_params[2][2]);
    TH2D *th_diffthreshold = new TH2D("th_diffthreshold",
       "DiffThreshold0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70,-20,20);
+      numtimebins,0,end,yaxis_params[3][0], yaxis_params[3][1], yaxis_params[3][2]);
    TH2D *th_diffbaselineslop = new TH2D("th_diffbaselineslop",
       "DiffBaselineslope0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,50,-10,10);
+      numtimebins,0,end,yaxis_params[4][0], yaxis_params[4][1], yaxis_params[4][2]);
    TH2D *th_difftickheight = new TH2D("th_difftickheight",
       "DiffTickheight0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,50,-10,10);
+      numtimebins,0,end,yaxis_params[5][0], yaxis_params[5][1], yaxis_params[5][2]);
    TH2D *th_difflinknoise = new TH2D("th_difflinknoise",
       "DiffLinknoise0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,80,-25,25);
+      numtimebins,0,end,yaxis_params[6][0], yaxis_params[6][1], yaxis_params[6][2]);
    TH2D *th_diffzerolight = new TH2D("th_diffzerolight",
       "DiffZerolight0/Ref;Run date;Difference (%)",
-      numtimebins,0,end,70,-20,20);
+      numtimebins,0,end,yaxis_params[7][0], yaxis_params[7][1], yaxis_params[7][2]);
 
 
    //read all run entries and fill the histograms

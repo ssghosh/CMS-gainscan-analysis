@@ -1,7 +1,7 @@
-#include "make_hitemp_histograms.C"
+#include "make_histograms.C"
 #include <string>
 
-void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tecp_filelist, TString tecm_filelist, TString datelist, TString output_prefix){
+void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tecp_filelist, TString tecm_filelist, TString datelist, TString output_prefix, TString yaxisparamfile){
    vector<TString> tob_files;
    vector<TString> tib_files;
    vector<TString> tecp_files;
@@ -100,13 +100,13 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    // Loop over the files and produce all histograms, putting them in individual output files 
    for (Int_t i = 0; i < num_files; i++) {
       TString tob_output_filename = "tob_" + output_prefix + "_" + to_string(i) + ".root";
-      make_hitemp_histograms(tob_files[i],tob_output_filename,rundates[i],offset,end,numtimebins);
+      make_histograms(tob_files[i],tob_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tib_output_filename = "tib_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_hitemp_histograms(tib_files[i],tib_output_filename,rundates[i],offset,end,numtimebins);
+      make_histograms(tib_files[i],tib_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecp_output_filename = "tecp_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_hitemp_histograms(tecp_files[i],tecp_output_filename,rundates[i],offset,end,numtimebins);
+      make_histograms(tecp_files[i],tecp_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecm_output_filename = "tecm_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_hitemp_histograms(tecm_files[i],tecm_output_filename,rundates[i],offset,end,numtimebins);
+      make_histograms(tecm_files[i],tecm_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
    }
 
 
