@@ -15,10 +15,10 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    if (!tob_reader.is_open()){
       cout << "TOB file can't be opened" << endl;
    }
-
+   
    while (std::getline(tob_reader, line)){
       if (line.length() == 0) continue;
-      cout << line << endl;
+      //cout << line << endl;
       tob_files.push_back(line);
    }
    tob_reader.close();
@@ -31,7 +31,7 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    while (std::getline(tib_reader, line)){
       if (line.length() == 0) continue;
-      cout << line << endl;
+      //cout << line << endl;
       tib_files.push_back(line);
    }
    tib_reader.close();
@@ -44,7 +44,7 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    while (std::getline(tecp_reader, line)){
       if (line.length() == 0) continue;
-      cout << line << endl;
+      //cout << line << endl;
       tecp_files.push_back(line);
    }
    tecp_reader.close();
@@ -57,7 +57,7 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    while (std::getline(tecm_reader, line)){
       if (line.length() == 0) continue;
-      cout << line << endl;
+      //cout << line << endl;
       tecm_files.push_back(line);
    }
    tecm_reader.close();
@@ -71,7 +71,7 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    
    while (std::getline(datime_reader, line)){
       if (line.length() == 0) continue;
-      cout << line << endl;
+      //cout << line << endl;
       rundates.push_back(TDatime(line.c_str()));
    }
    datime_reader.close();
@@ -98,17 +98,14 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    Int_t num_files = rundates.size();
    // Loop over the files and produce all histograms, putting them in individual output files 
-   for (Int_t i = 0; i < num_files; i++) {
+   for (Int_t i = 1; i < num_files; i++) {
       TString tob_output_filename = "tob_" + output_prefix + "_" + to_string(i) + ".root";
-      make_histograms(tob_files[i],tob_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
+      make_histograms(tob_files[i],tob_files[0],tob_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tib_output_filename = "tib_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_histograms(tib_files[i],tib_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
+      make_histograms(tib_files[i],tib_files[0],tib_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecp_output_filename = "tecp_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_histograms(tecp_files[i],tecp_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
+      make_histograms(tecp_files[i],tecp_files[0],tecp_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecm_output_filename = "tecm_" + output_prefix + "_" + to_string(i) + ".root"; 
-      make_histograms(tecm_files[i],tecm_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
+      make_histograms(tecm_files[i],tecm_files[0],tecm_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
    }
-
-
-      
 }
