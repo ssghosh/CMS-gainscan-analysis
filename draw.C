@@ -4,11 +4,13 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    TFile *tecp = new TFile(tecp_filename);
    TFile *tecm = new TFile(tecm_filename); 
   
-   offset = TDatime(offsetdate,000000);
-   gStyle->SetTimeOffset(offset.Convert());
+   TDatime offset = TDatime(offsetdate,000000);
+   Int_t converted_offset = offset.Convert();
+   gStyle->SetTimeOffset(converted_offset);
    gStyle->SetPalette(1);
    gStyle->SetPadGridY(1);
- 
+   cout << "Style has been set" << endl; 
+
    Int_t number_of_hists = 8;
    TString *hist_names = new TString[number_of_hists];
    hist_names[0] = "th_diffmeasgain";
@@ -19,6 +21,7 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    hist_names[5] = "th_difftickheight";
    hist_names[6] = "th_difflinknoise";
    hist_names[7] = "th_diffzerolight";
+   cout << "hist_names has been initialized" << endl;
 
    TCanvas *canvases = new TCanvas[number_of_hists];
    canvases[0].SetTitle("diffmeasgain");
@@ -29,6 +32,7 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    canvases[5].SetTitle("difftickheight");
    canvases[6].SetTitle("difflinknoise");
    canvases[7].SetTitle("diffzerolight");
+   cout << "canvases has been initialized and titled" << endl;
 
    TH2D **tob_hists = new TH2D*[number_of_hists];
    for (Int_t i = 0; i < number_of_hists; i++) {
@@ -36,11 +40,13 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
       tob_hists[i]->GetXaxis()->SetTimeDisplay(1);
       tob_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
       tob_hists[i]->SetStats(0);
+      //cout << "axes have been set for tob_hist " << to_string(i) << endl; 
       
       TString title = tob_hists[i]->GetTitle();
       TString newtitle = "TOB " + title;
       tob_hists[i]->SetTitle(newtitle);
-
+      //cout << "titled tob_hist " << to_string(i) << endl;
+      
       TString xtitle = "Run date (Ref = " + tob_refnum + ")";
       tob_hists[i]->SetXTitle(xtitle);
    }
@@ -51,10 +57,12 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
       tib_hists[i]->GetXaxis()->SetTimeDisplay(1);
       tib_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
       tib_hists[i]->SetStats(0);
-      
+      //cout << "axes have been set for tib_hist " << to_string(i) << endl;     
+ 
       TString title = tib_hists[i]->GetTitle();
       TString newtitle = "TIB " + title;
       tib_hists[i]->SetTitle(newtitle);
+      //cout << "titled tib_hist " << to_string(i) << endl;
 
       TString xtitle = "Run date (Ref = " + tib_refnum + ")";
       tib_hists[i]->SetXTitle(xtitle);   
@@ -66,10 +74,12 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
       tecp_hists[i]->GetXaxis()->SetTimeDisplay(1);
       tecp_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
       tecp_hists[i]->SetStats(0);
+      //cout << "axes have been set for tecp_hist " << to_string(i) << endl;     
       
       TString title = tecp_hists[i]->GetTitle();
       TString newtitle = "TECP " + title;
       tecp_hists[i]->SetTitle(newtitle);
+      //cout << "titled tecp_hist " << to_string(i) << endl;
 
       TString xtitle = "Run date (Ref = " + tecp_refnum + ")";
       tecp_hists[i]->SetXTitle(xtitle);   
