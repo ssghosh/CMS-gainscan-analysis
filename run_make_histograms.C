@@ -10,6 +10,7 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    string line;
 
+   cout << "about to open file lists" << endl;
    std::ifstream tob_reader(tob_filelist);
 
    if (!tob_reader.is_open()){
@@ -68,7 +69,6 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
       cout << "TDatime file can't be opened" << endl;
    }
 
-   
    while (std::getline(datime_reader, line)){
       if (line.length() == 0) continue;
       //cout << line << endl;
@@ -100,12 +100,16 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    // Loop over the files and produce all histograms, putting them in individual output files 
    for (Int_t i = 1; i < num_files; i++) {
       TString tob_output_filename = "tob_" + output_prefix + "_" + to_string(i) + ".root";
+      cout << "Processing " << tob_files[i] << endl;
       make_histograms(tob_files[i],tob_files[0],tob_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tib_output_filename = "tib_" + output_prefix + "_" + to_string(i) + ".root"; 
+      cout << "Processing " << tib_files[i] << endl;
       make_histograms(tib_files[i],tib_files[0],tib_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecp_output_filename = "tecp_" + output_prefix + "_" + to_string(i) + ".root"; 
+      cout << "Processing " << tecp_files[i] << endl;
       make_histograms(tecp_files[i],tecp_files[0],tecp_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
       TString tecm_output_filename = "tecm_" + output_prefix + "_" + to_string(i) + ".root"; 
+      cout << "Processing " << tecm_files[i] << endl;
       make_histograms(tecm_files[i],tecm_files[0],tecm_output_filename,rundates[i],offset,end,numtimebins,yaxisparamfile);
    }
 }

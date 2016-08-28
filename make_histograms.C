@@ -30,75 +30,81 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    }   
    yaxis_reader.close();
    Int_t this_run = da.Convert()-offset;
-   // extract the filenames from the filepath 
+   // extract the filename from the filepath 
    Ssiz_t run_namestart = run_filepath.Last('/')+1;
    Ssiz_t ref_namestart = ref_filepath.Last('/')+1;
    TString run_filename( run_filepath(run_namestart,run_filepath.Length()));
-   TString ref_filename( ref_filepath(ref_namestart,ref_filepath.Length()) );
-   // extract the run and ref numbers from the filename 
-   Ssiz_t first = 17; //the index of the '_' after the second "GAINSCAN" in the default filename produced by tkCommissioner
-   Ssiz_t last = run_filename.Last('_'); //left this adaptable in case the position changes due to longer/shorter run numbers
+   TString ref_filename( ref_filepath(ref_namestart,ref_filepath.Length()));
+   // extract the run number from the filename 
+   Int_t position = 17; // the position after the first "GAINSCAN_" in the default filename produced by tkCommissioner
+   Ssiz_t first = run_filename.Index('_',position);
+   Ssiz_t last = run_filename.Last('_');
+   Ssiz_t period = run_filename.Last('.'); // the ref number is the one right before ".root" in the default filename 
    TString run_number( run_filename(first+1, last-first-1) );
    TString ref_number( ref_filename(first+1,last-first-1) ); 
 
    // get filename and tree name for run data 
-   TString tree_name("Tree_04_" + run_number);
-   TFile *run = new TFile(run_filepath.Data());
-   TTree *run_tree = (TTree*)run->Get(tree_name.Data());
-   
-   // set up run variables
-   Double_t measgain;
-   Double_t bias;
-   Double_t liftoff;
-   Double_t baselineslop;
-   Double_t threshold;
-   Double_t tickheight;
-   Double_t linknoise;
-   Double_t zerolight;
-   Double_t run_isvalid;  
+   TString run_treename("Tree_04_" + run_number);
+   TString ref_treename("Tree_04_" + ref_number);
   
+   TFile *run = new TFile(run_filepath);
+   TTree *run_tree = (TTree*)run->Get(run_treename);
+  
+   // set up run variables
+   Double_t detid;
+   Double_t i2caddress;
+   Double_t run_measgain;
+   Double_t run_bias;
+   Double_t run_liftoff;
+   Double_t run_baselineslop;
+   Double_t run_threshold;
+   Double_t run_tickheight;
+   Double_t run_linknoise;
+   Double_t run_zerolight;
+   Double_t run_isvalid;  
+ 
    // book the run branches 
-   run_tree->SetBranchAddress("Measgain0",&measgain);
-   run_tree->SetBranchAddress("Bias0",&bias);
-   run_tree->SetBranchAddress("Liftoff0",&liftoff);
-   run_tree->SetBranchAddress("Threshold0",&threshold);
-   run_tree->SetBranchAddress("Baselineslop0",&baselineslop);
-   run_tree->SetBranchAddress("Tickheight0",&tickheight);
-   run_tree->SetBranchAddress("Linknoise0",&linknoise);
-   run_tree->SetBranchAddress("Zerolight0",&zerolight);
+   run_tree->SetBranchAddress("Detid",&detid);
+   run_tree->SetBranchAddress("I2CAddress",&i2caddress);
+   run_tree->SetBranchAddress("Measgain0",&run_measgain);
+   run_tree->SetBranchAddress("Bias0",&run_bias);
+   run_tree->SetBranchAddress("Liftoff0",&run_liftoff);
+   run_tree->SetBranchAddress("Threshold0",&run_threshold);
+   run_tree->SetBranchAddress("Baselineslop0",&run_baselineslop);
+   run_tree->SetBranchAddress("Tickheight0",&run_tickheight);
+   run_tree->SetBranchAddress("Linknoise0",&run_linknoise);
+   run_tree->SetBranchAddress("Zerolight0",&run_zerolight);
    run_tree->SetBranchAddress("Isvalid",&run_isvalid);
 
-   // Construct the filename of the reference run
-   TString ref_treename("Tree_04_" + ref_number);
-   TFile *ref = new TFile(ref_filepath.Data());
-   TTree *ref_tree = (TTree*)ref->Get(ref_treename.Data());
+   // get the reference tree and build an index for it
+  
+   TFile *ref = new TFile(ref_filepath);
+   TTree *ref_tree = (TTree*)ref->Get(ref_treename);
+   ref_tree->BuildIndex("Detid","I2CAddress");
 
    // set up ref variables
-   Double_t refmeasgain;
-   Double_t refbias;
-   Double_t refliftoff;
-   Double_t refbaselineslop;
-   Double_t refthreshold;
-   Double_t reftickheight;
-   Double_t reflinknoise;
-   Double_t refzerolight;
+   Double_t ref_measgain;
+   Double_t ref_bias;
+   Double_t ref_liftoff;
+   Double_t ref_baselineslop;
+   Double_t ref_threshold;
+   Double_t ref_tickheight;
+   Double_t ref_linknoise;
+   Double_t ref_zerolight;
    Double_t ref_isvalid;
    
    // book the ref branches 
-   ref_tree->SetBranchAddress("Measgain0",&refmeasgain);
-   ref_tree->SetBranchAddress("Bias0",&refbias);
-   ref_tree->SetBranchAddress("Liftoff0",&refliftoff);
-   ref_tree->SetBranchAddress("Threshold0",&refthreshold);
-   ref_tree->SetBranchAddress("Baselineslop0",&refbaselineslop);
-   ref_tree->SetBranchAddress("Tickheight0",&reftickheight);
-   ref_tree->SetBranchAddress("Linknoise0",&reflinknoise);
-   ref_tree->SetBranchAddress("Zerolight0",&refzerolight);
+   ref_tree->SetBranchAddress("Measgain0",&ref_measgain);
+   ref_tree->SetBranchAddress("Bias0",&ref_bias);
+   ref_tree->SetBranchAddress("Liftoff0",&ref_liftoff);
+   ref_tree->SetBranchAddress("Threshold0",&ref_threshold);
+   ref_tree->SetBranchAddress("Baselineslop0",&ref_baselineslop);
+   ref_tree->SetBranchAddress("Tickheight0",&ref_tickheight);
+   ref_tree->SetBranchAddress("Linknoise0",&ref_linknoise);
+   ref_tree->SetBranchAddress("Zerolight0",&ref_zerolight);
    ref_tree->SetBranchAddress("Isvalid",&ref_isvalid);
 
    // create the histograms
-   //cout << "y-axis params are " << to_string(yaxis_params[0][0]) << ", " << to_string(yaxis_params[0][1]) << ", " << to_string(yaxis_params[0][2]) << endl;
-
-   //cout << "y-axis params are " << to_string(yaxis_params[3][0]) << ", " << to_string(yaxis_params[3][1]) << ", " << to_string(yaxis_params[3][2]) << endl;
    TH2D *th_diffmeasgain = new TH2D("th_diffmeasgain",
       "DiffMeasgain0/Ref;Run date;Difference (%)",
       numtimebins,0,end,yaxis_params[0][0], yaxis_params[0][1], yaxis_params[0][2]);
@@ -126,28 +132,35 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
 
 
    //read all run entries and fill the histograms
-   Long64_t minentries = ref_tree->GetEntries();
+   Long64_t numentries = run_tree->GetEntries();
    Long64_t refentries = ref_tree->GetEntries();
-   if (run_tree->GetEntries() < minentries){
-      minentries = run_tree->GetEntries();} 
-   for (Long64_t i=0;i<minentries;i++) {
+   Long64_t bad_entry_counter = 0;
+   for (Long64_t i=0;i<numentries;i++) {
       run_tree->GetEntry(i);
-      ref_tree->GetEntry(i);
    
-      if (!run_isvalid){
-         continue;}
-      if (!ref_isvalid){
-         continue;}
+      if (!run_isvalid) {
+         bad_entry_counter++;
+         continue;
+      }
+     
+      if (ref_tree->GetEntryWithIndex(detid,i2caddress)==-1) {
+         bad_entry_counter++;
+         continue;
+      }  
 
- 
-      Double_t percentage_measgain = 100*((measgain - refmeasgain) / refmeasgain);
-      Double_t percentage_bias = 100*((bias - refbias) / refbias);
-      Double_t percentage_liftoff = 100*((liftoff - refliftoff) / refliftoff);
-      Double_t percentage_threshold = 100*((threshold - refthreshold) / refthreshold);
-      Double_t percentage_baselineslop = 100*((baselineslop - refbaselineslop) / refbaselineslop);
-      Double_t percentage_tickheight = 100*((tickheight - reftickheight) / reftickheight);
-      Double_t percentage_linknoise = 100*((linknoise - reflinknoise) / reflinknoise);
-      Double_t percentage_zerolight = 100*((zerolight - refzerolight) / refzerolight);
+      if (!ref_isvalid) {
+         bad_entry_counter++;
+         continue;
+      }
+       
+      Double_t percentage_measgain = 100*(run_measgain / ref_measgain);
+      Double_t percentage_bias = 100*(run_bias / ref_bias);
+      Double_t percentage_liftoff = 100*(run_liftoff / ref_liftoff);
+      Double_t percentage_threshold = 100*(run_threshold / ref_threshold);
+      Double_t percentage_baselineslop = 100*(run_baselineslop / ref_baselineslop);
+      Double_t percentage_tickheight = 100*(run_tickheight / ref_tickheight);
+      Double_t percentage_linknoise = 100*(run_linknoise / ref_linknoise);
+      Double_t percentage_zerolight = 100*(run_zerolight / ref_zerolight);
       
       th_diffmeasgain->Fill(this_run,percentage_measgain);
       th_diffbias->Fill(this_run,percentage_bias);
@@ -158,15 +171,26 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
       th_difflinknoise->Fill(this_run,percentage_linknoise);
       th_diffzerolight->Fill(this_run,percentage_zerolight);
    }
+   if (bad_entry_counter > 0) {
+      cout << run_filename << " contained " << to_string(bad_entry_counter) << " excluded entries out of " << to_string(numentries) << " total entries" << endl;
+   }
    
    // scale all of the hists
+   cout << "prescaling diffmeasgain integral is " << to_string(th_diffmeasgain->Integral()) << endl;
    th_diffmeasgain->Scale(refentries / th_diffmeasgain->Integral());
+   cout << "prescaling diffbias integral is " << to_string(th_diffbias->Integral()) << endl;
    th_diffbias->Scale(refentries / th_diffbias->Integral());
+   cout << "prescaling diffliftoff integral is " << to_string(th_diffliftoff->Integral()) << endl;
    th_diffliftoff->Scale(refentries / th_diffliftoff->Integral());
+   cout << "prescaling diffthreshold integral is " << to_string(th_diffthreshold->Integral()) << endl;
    th_diffthreshold->Scale(refentries / th_diffthreshold->Integral());
+   cout << "prescaling diffbaselineslop integral is " << to_string(th_diffbaselineslop->Integral()) << endl;
    th_diffbaselineslop->Scale(refentries / th_diffbaselineslop->Integral());
+   cout << "prescaling difftickheight integral is " << to_string(th_difftickheight->Integral()) << endl;
    th_difftickheight->Scale(refentries / th_difftickheight->Integral());
+   cout << "prescaling difflinknoise integral is " << to_string(th_difflinknoise->Integral()) << endl;
    th_difflinknoise->Scale(refentries / th_difflinknoise->Integral());
+   cout << "prescaling diffzerolight integral is " << to_string(th_diffzerolight->Integral()) << endl;
    th_diffzerolight->Scale(refentries / th_diffzerolight->Integral());
 
    // Now open the output file...

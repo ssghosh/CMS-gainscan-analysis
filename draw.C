@@ -1,4 +1,6 @@
 void draw(const TString tob_filename, const TString tob_refnum, const TString tib_filename, const TString tib_refnum, const TString tecp_filename, const TString tecp_refnum, const TString tecm_filename, const TString tecm_refnum, const Int_t offsetdate) {
+   gROOT->SetBatch();
+
    TFile *tob = new TFile(tob_filename);
    TFile *tib = new TFile(tib_filename);
    TFile *tecp = new TFile(tecp_filename);
@@ -9,7 +11,6 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    gStyle->SetTimeOffset(converted_offset);
    gStyle->SetPalette(1);
    gStyle->SetPadGridY(1);
-   cout << "Style has been set" << endl; 
 
    Int_t number_of_hists = 8;
    TString *hist_names = new TString[number_of_hists];
@@ -21,7 +22,6 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    hist_names[5] = "th_difftickheight";
    hist_names[6] = "th_difflinknoise";
    hist_names[7] = "th_diffzerolight";
-   cout << "hist_names has been initialized" << endl;
 
    TCanvas *canvases = new TCanvas[number_of_hists];
    canvases[0].SetTitle("diffmeasgain");
@@ -32,7 +32,6 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    canvases[5].SetTitle("difftickheight");
    canvases[6].SetTitle("difflinknoise");
    canvases[7].SetTitle("diffzerolight");
-   cout << "canvases has been initialized and titled" << endl;
 
    TH2D **tob_hists = new TH2D*[number_of_hists];
    for (Int_t i = 0; i < number_of_hists; i++) {
@@ -111,6 +110,9 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
       tecp_hists[i]->DrawClone("colz");
       canvases[i].cd(4);
       tecm_hists[i]->DrawClone("colz"); 
+      TString title = canvases[i].GetTitle();
+      TString pdfname = "4c_pdfs/" + title + ".pdf";
+      canvases[i].Print(pdfname);
    }
 
 }
