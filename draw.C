@@ -1,4 +1,5 @@
 void draw(const TString tob_filename, const TString tob_refnum, const TString tib_filename, const TString tib_refnum, const TString tecp_filename, const TString tecp_refnum, const TString tecm_filename, const TString tecm_refnum, const Int_t offsetdate) {
+   // uncomment the following line to prevent the draw script from creating windows
    gROOT->SetBatch();
 
    TFile *tob = new TFile(tob_filename);

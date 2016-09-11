@@ -30,13 +30,15 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    }   
    yaxis_reader.close();
    Int_t this_run = da.Convert()-offset;
+   
    // extract the filename from the filepath 
    Ssiz_t run_namestart = run_filepath.Last('/')+1;
    Ssiz_t ref_namestart = ref_filepath.Last('/')+1;
    TString run_filename( run_filepath(run_namestart,run_filepath.Length()));
    TString ref_filename( ref_filepath(ref_namestart,ref_filepath.Length()));
+   
    // extract the run number from the filename 
-   Int_t position = 17; // the position after the first "GAINSCAN_" in the default filename produced by tkCommissioner
+   Int_t position = 17; // the position after the second "GAINSCAN_" in the default filename produced by tkCommissioner
    Ssiz_t first = run_filename.Index('_',position);
    Ssiz_t last = run_filename.Last('_');
    Ssiz_t period = run_filename.Last('.'); // the ref number is the one right before ".root" in the default filename 
@@ -153,14 +155,14 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
          continue;
       }
        
-      Double_t percentage_measgain = 100*(run_measgain / ref_measgain);
-      Double_t percentage_bias = 100*(run_bias / ref_bias);
-      Double_t percentage_liftoff = 100*(run_liftoff / ref_liftoff);
-      Double_t percentage_threshold = 100*(run_threshold / ref_threshold);
-      Double_t percentage_baselineslop = 100*(run_baselineslop / ref_baselineslop);
-      Double_t percentage_tickheight = 100*(run_tickheight / ref_tickheight);
-      Double_t percentage_linknoise = 100*(run_linknoise / ref_linknoise);
-      Double_t percentage_zerolight = 100*(run_zerolight / ref_zerolight);
+      Double_t percentage_measgain = 100*((run_measgain - ref_measgain) / ref_measgain);
+      Double_t percentage_bias = 100*((run_bias - ref_bias) / ref_bias);
+      Double_t percentage_liftoff = 100*((run_liftoff - ref_liftoff) / ref_liftoff);
+      Double_t percentage_threshold = 100*((run_threshold - ref_threshold) / ref_threshold);
+      Double_t percentage_baselineslop = 100*((run_baselineslop - ref_baselineslop) / ref_baselineslop);
+      Double_t percentage_tickheight = 100*((run_tickheight - ref_tickheight) / ref_tickheight);
+      Double_t percentage_linknoise = 100*((run_linknoise - ref_linknoise) / ref_linknoise);
+      Double_t percentage_zerolight = 100*((run_zerolight - ref_zerolight) / ref_zerolight);
       
       th_diffmeasgain->Fill(this_run,percentage_measgain);
       th_diffbias->Fill(this_run,percentage_bias);

@@ -10,7 +10,6 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
 
    string line;
 
-   cout << "about to open file lists" << endl;
    std::ifstream tob_reader(tob_filelist);
 
    if (!tob_reader.is_open()){
@@ -92,9 +91,10 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
    Int_t offset = begin_date.Convert();
    gStyle->SetTimeOffset(offset);
    Int_t end = end_date.Convert()-offset;
+
    // the number of time bins is the number of months
-   // this calculation assumes that the rundates span multiple years
-   Int_t numtimebins = ((end_date.GetYear()-1) - (begin_date.GetYear()+1))*12 + begin_date.GetMonth() + (11 - end_date.GetMonth());
+   Int_t numtimebins = (end_date.GetYear() - begin_date.GetYear() + 1)*12 - begin_date.GetMonth() - (12 - end_date.GetMonth());
+   cout << "numtimebins is " << numtimebins << endl;
 
    Int_t num_files = rundates.size();
    // Loop over the files and produce all histograms, putting them in individual output files 
