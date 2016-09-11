@@ -88,6 +88,8 @@ void run_make_histograms(TString tob_filelist, TString tib_filelist, TString tec
                         + to_string(1) + " 00:00:00"; 
    TDatime begin_date(begin_date_string);
    TDatime end_date(end_date_string);
+   cout << "begin date is " << begin_date_string << endl;
+   cout << "end date is " << end_date_string << endl;
    Int_t offset = begin_date.Convert();
    gStyle->SetTimeOffset(offset);
    Int_t end = end_date.Convert()-offset;
