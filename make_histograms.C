@@ -30,7 +30,8 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    }   
    yaxis_reader.close();
    Int_t this_run = da.Convert()-offset;
-   
+   //cout << "Run number is " << this_run << endl; 
+ 
    // extract the filename from the filepath 
    Ssiz_t run_namestart = run_filepath.Last('/')+1;
    Ssiz_t ref_namestart = ref_filepath.Last('/')+1;
@@ -165,6 +166,7 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
       Double_t percentage_zerolight = 100*((run_zerolight - ref_zerolight) / ref_zerolight);
       
       th_diffmeasgain->Fill(this_run,percentage_measgain);
+      //if (i % 1000 == 0) cout << "measgain percentage is " << percentage_measgain << endl;
       th_diffbias->Fill(this_run,percentage_bias);
       th_diffliftoff->Fill(this_run,percentage_liftoff);
       th_diffthreshold->Fill(this_run,percentage_threshold);
@@ -178,24 +180,31 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    }
    
    // scale all of the hists
-   cout << "prescaling diffmeasgain integral is " << to_string(th_diffmeasgain->Integral()) << endl;
+   //cout << "prescaling diffmeasgain integral is " << to_string(th_diffmeasgain->Integral()) << endl;
+   //cout << "prescaling diffbias integral is " << to_string(th_diffbias->Integral()) << endl;
+   //cout << "prescaling diffliftoff integral is " << to_string(th_diffliftoff->Integral()) << endl;
+   //cout << "prescaling diffthreshold integral is " << to_string(th_diffthreshold->Integral()) << endl;
+   //cout << "prescaling diffbaselineslop integral is " << to_string(th_diffbaselineslop->Integral()) << endl;
+   //cout << "prescaling difftickheight integral is " << to_string(th_difftickheight->Integral()) << endl;
+   //cout << "prescaling difflinknoise integral is " << to_string(th_difflinknoise->Integral()) << endl;
+   //cout << "prescaling diffzerolight integral is " << to_string(th_diffzerolight->Integral()) << endl;
+   
    th_diffmeasgain->Scale(refentries / th_diffmeasgain->Integral());
-   cout << "prescaling diffbias integral is " << to_string(th_diffbias->Integral()) << endl;
-   th_diffbias->Scale(refentries / th_diffbias->Integral());
-   cout << "prescaling diffliftoff integral is " << to_string(th_diffliftoff->Integral()) << endl;
-   th_diffliftoff->Scale(refentries / th_diffliftoff->Integral());
-   cout << "prescaling diffthreshold integral is " << to_string(th_diffthreshold->Integral()) << endl;
-   th_diffthreshold->Scale(refentries / th_diffthreshold->Integral());
-   cout << "prescaling diffbaselineslop integral is " << to_string(th_diffbaselineslop->Integral()) << endl;
-   th_diffbaselineslop->Scale(refentries / th_diffbaselineslop->Integral());
-   cout << "prescaling difftickheight integral is " << to_string(th_difftickheight->Integral()) << endl;
-   th_difftickheight->Scale(refentries / th_difftickheight->Integral());
-   cout << "prescaling difflinknoise integral is " << to_string(th_difflinknoise->Integral()) << endl;
    th_difflinknoise->Scale(refentries / th_difflinknoise->Integral());
-   cout << "prescaling diffzerolight integral is " << to_string(th_diffzerolight->Integral()) << endl;
+   th_difftickheight->Scale(refentries / th_difftickheight->Integral());
+   th_diffbaselineslop->Scale(refentries / th_diffbaselineslop->Integral());
    th_diffzerolight->Scale(refentries / th_diffzerolight->Integral());
-
-   // Now open the output file...
+   th_diffthreshold->Scale(refentries / th_diffthreshold->Integral());
+   th_diffliftoff->Scale(refentries / th_diffliftoff->Integral());
+   th_diffbias->Scale(refentries / th_diffbias->Integral());
+   
+   // cout << "scaled diffmeasgain integral is " << to_string(th_diffmeasgain->Integral()) << endl;
+   //cout << "scaled diffbias integral is " << to_string(th_diffbias->Integral()) << endl;
+   //cout << "scaled diffliftoff integral is " << to_string(th_diffliftoff->Integral()) << endl;
+   //cout << "scaled diffthreshold integral is " << to_string(th_diffthreshold->Integral()) << endl;
+   //cout << "scaled diffbaselineslop integral is " << to_string(th_diffbaselineslop->Integral()) << endl;
+   //cout << "scaled difftickheight integral is " << to_string(th_difftickheight->Integral()) << endl;
+   //cout << "scaled difflinknoise integral is " << to_string(th_difflinknoise->Integral()) << endl;
    TFile *output_file = new TFile(output_filename,"recreate");
    output_file->cd();
    th_diffmeasgain->Write();

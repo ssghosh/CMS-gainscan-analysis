@@ -1,11 +1,11 @@
-void draw(const TString tob_filename, const TString tob_refnum, const TString tib_filename, const TString tib_refnum, const TString tecp_filename, const TString tecp_refnum, const TString tecm_filename, const TString tecm_refnum, const Int_t offsetdate) {
+void draw(const TString tob_filename, const TString tob_refnum, const TString tib_filename, const TString tib_refnum, const TString tecp_filename, const TString tecp_refnum, const TString tecm_filename, const TString tecm_refnum, const Int_t offsetdate, const TString pdf_dir) {
    // uncomment the following line to prevent the draw script from creating windows
    gROOT->SetBatch();
 
    TFile *tob = new TFile(tob_filename);
    TFile *tib = new TFile(tib_filename);
-   TFile *tecp = new TFile(tecp_filename);
-   TFile *tecm = new TFile(tecm_filename); 
+   //TFile *tecp = new TFile(tecp_filename);
+   //TFile *tecm = new TFile(tecm_filename); 
   
    TDatime offset = TDatime(offsetdate,000000);
    Int_t converted_offset = offset.Convert();
@@ -35,6 +35,7 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
    canvases[7].SetTitle("diffzerolight");
 
    TH2D **tob_hists = new TH2D*[number_of_hists];
+   TProfile **tob_profiles = new TProfile*[number_of_hists];
    for (Int_t i = 0; i < number_of_hists; i++) {
       tob_hists[i] = (TH2D*)tob->Get(hist_names[i]);
       tob_hists[i]->GetXaxis()->SetTimeDisplay(1);
@@ -45,75 +46,133 @@ void draw(const TString tob_filename, const TString tob_refnum, const TString ti
       TString title = tob_hists[i]->GetTitle();
       TString newtitle = "TOB " + title;
       tob_hists[i]->SetTitle(newtitle);
-      //cout << "titled tob_hist " << to_string(i) << endl;
       
       TString xtitle = "Run date (Ref = " + tob_refnum + ")";
       tob_hists[i]->SetXTitle(xtitle);
+      
+      tob_profiles[i] = tob_hists[i]->ProfileX("_pfx",1,-1,"s");
+      tob_profiles[i]->GetXaxis()->SetTimeDisplay(1);
+      tob_profiles[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+      tob_profiles[i]->SetStats(0);
+      
+      tob_profiles[i]->SetTitle("");
+      
+      tob_profiles[i]->SetXTitle(xtitle);
+      tob_profiles[i]->SetYTitle("Difference (%)");
    }
 
    TH2D **tib_hists = new TH2D*[number_of_hists];
-   for (Int_t i = 0; i < number_of_hists; i++) { 
+   TProfile **tib_profiles = new TProfile*[number_of_hists];
+   for (Int_t i = 0; i < number_of_hists; i++) {
       tib_hists[i] = (TH2D*)tib->Get(hist_names[i]);
       tib_hists[i]->GetXaxis()->SetTimeDisplay(1);
       tib_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
       tib_hists[i]->SetStats(0);
-      //cout << "axes have been set for tib_hist " << to_string(i) << endl;     
- 
+      //cout << "axes have been set for tib_hist " << to_string(i) << endl; 
+      
       TString title = tib_hists[i]->GetTitle();
       TString newtitle = "TIB " + title;
       tib_hists[i]->SetTitle(newtitle);
-      //cout << "titled tib_hist " << to_string(i) << endl;
-
+      
       TString xtitle = "Run date (Ref = " + tib_refnum + ")";
-      tib_hists[i]->SetXTitle(xtitle);   
-   }
-
-   TH2D **tecp_hists = new TH2D*[number_of_hists];
-   for (Int_t i = 0; i < number_of_hists; i++) {
-      tecp_hists[i] = (TH2D*)tecp->Get(hist_names[i]);
-      tecp_hists[i]->GetXaxis()->SetTimeDisplay(1);
-      tecp_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
-      tecp_hists[i]->SetStats(0);
-      //cout << "axes have been set for tecp_hist " << to_string(i) << endl;     
+      tib_hists[i]->SetXTitle(xtitle);
       
-      TString title = tecp_hists[i]->GetTitle();
-      TString newtitle = "TECP " + title;
-      tecp_hists[i]->SetTitle(newtitle);
-      //cout << "titled tecp_hist " << to_string(i) << endl;
-
-      TString xtitle = "Run date (Ref = " + tecp_refnum + ")";
-      tecp_hists[i]->SetXTitle(xtitle);   
-   }
-
-   TH2D **tecm_hists = new TH2D*[number_of_hists];
-   for (Int_t i = 0; i < number_of_hists; i++) {
-      tecm_hists[i] = (TH2D*)tecm->Get(hist_names[i]);
-      tecm_hists[i]->GetXaxis()->SetTimeDisplay(1);
-      tecm_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
-      tecm_hists[i]->SetStats(0);
+      tib_profiles[i] = tib_hists[i]->ProfileX("_pfx",1,-1,"s");
+      tib_profiles[i]->GetXaxis()->SetTimeDisplay(1);
+      tib_profiles[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+      tib_profiles[i]->SetStats(0);
       
-      TString title = tecm_hists[i]->GetTitle();
-      TString newtitle = "TECM " + title;
-      tecm_hists[i]->SetTitle(newtitle);
-
-      TString xtitle = "Run date (Ref = " + tecm_refnum + ")";
-      tecm_hists[i]->SetXTitle(xtitle);   
+      tib_profiles[i]->SetTitle("");
+      
+      tib_profiles[i]->SetXTitle(xtitle);
+      tib_profiles[i]->SetYTitle("Difference (%)");
    }
 
+   //TH2D **tecp_hists = new TH2D*[number_of_hists];
+   //TProfile **tecp_profiles = new TProfile*[number_of_hists];
+   //for (Int_t i = 0; i < number_of_hists; i++) {
+   //   tecp_hists[i] = (TH2D*)tecp->Get(hist_names[i]);
+   //   tecp_hists[i]->GetXaxis()->SetTimeDisplay(1);
+   //   tecp_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+   //   tecp_hists[i]->SetStats(0);
+   //   //cout << "axes have been set for tecp_hist " << to_string(i) << endl; 
+   //   
+   //   TString title = tecp_hists[i]->GetTitle();
+   //   TString newtitle = "TECP " + title;
+   //   tecp_hists[i]->SetTitle(newtitle);
+   //   
+   //   TString xtitle = "Run date (Ref = " + tecp_refnum + ")";
+   //   tecp_hists[i]->SetXTitle(xtitle);
+   //   
+   //   tecp_profiles[i] = tecp_hists[i]->ProfileX("_pfx",1,-1,"s");
+   //   tecp_profiles[i]->GetXaxis()->SetTimeDisplay(1);
+   //   tecp_profiles[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+   //   tecp_profiles[i]->SetStats(0);
+   //   
+   //   tecp_profiles[i]->SetTitle("");
+   //   
+   //   tecp_profiles[i]->SetXTitle(xtitle);
+   //   tecp_profiles[i]->SetYTitle("Difference (%)");
+   //}
+
+   //TH2D **tecm_hists = new TH2D*[number_of_hists];
+   //TProfile **tecm_profiles = new TProfile*[number_of_hists];
+   //for (Int_t i = 0; i < number_of_hists; i++) {
+   //   tecm_hists[i] = (TH2D*)tecm->Get(hist_names[i]);
+   //   tecm_hists[i]->GetXaxis()->SetTimeDisplay(1);
+   //   tecm_hists[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+   //   tecm_hists[i]->SetStats(0);
+   //   //cout << "axes have been set for tecm_hist " << to_string(i) << endl; 
+   //   
+   //   TString title = tecm_hists[i]->GetTitle();
+   //   TString newtitle = "TECM " + title;
+   //   tecm_hists[i]->SetTitle(newtitle);
+   //   
+   //   TString xtitle = "Run date (Ref = " + tecm_refnum + ")";
+   //   tecm_hists[i]->SetXTitle(xtitle);
+   //   
+   //   tecm_profiles[i] = tecm_hists[i]->ProfileX("_pfx",1,-1,"s");
+   //   tecm_profiles[i]->GetXaxis()->SetTimeDisplay(1);
+   //   tecm_profiles[i]->GetXaxis()->SetTimeFormat("%m/%Y");
+   //   tecm_profiles[i]->SetStats(0);
+   //   
+   //   tecm_profiles[i]->SetTitle("");
+   //   
+   //   tecm_profiles[i]->SetXTitle(xtitle);
+   //   tecm_profiles[i]->SetYTitle("Difference (%)");
+   //}
+   
+   //for (Int_t i = 0; i < number_of_hists; i++){
+   //   canvases[i].Divide(2,2);
+   //   canvases[i].cd(); 
+   //   canvases[i].cd(1);
+   //   tob_hists[i]->DrawClone("colz");
+   //   tob_profiles[i]->DrawClone("sameE1");
+   //   canvases[i].cd(2);
+   //   tib_hists[i]->DrawClone("colz");
+   //   //tib_profiles[i]->DrawClone("sameE1");
+   //   canvases[i].cd(3);
+   //   tecp_hists[i]->DrawClone("colz");
+   //   //tecp_profiles[i]->DrawClone("sameE1");
+   //   canvases[i].cd(4);
+   //   tecm_hists[i]->DrawClone("colz"); 
+   //   //tecm_profiles[i]->DrawClone("sameE1");
+   //   TString title = canvases[i].GetTitle();
+   //   TString pdfname = pdf_dir + "/" + title + ".pdf";
+   //   canvases[i].Print(pdfname);
+   //}
+  
    for (Int_t i = 0; i < number_of_hists; i++){
-      canvases[i].Divide(2,2);
-      canvases[i].cd();
-      canvases[i].cd(1);
-      tob_hists[i]->DrawClone("colz");
-      canvases[i].cd(2);
-      tib_hists[i]->DrawClone("colz");
-      canvases[i].cd(3);
-      tecp_hists[i]->DrawClone("colz");
-      canvases[i].cd(4);
-      tecm_hists[i]->DrawClone("colz"); 
-      TString title = canvases[i].GetTitle();
-      TString pdfname = "4c_pdfs/" + title + ".pdf";
-      canvases[i].Print(pdfname);
+       TCanvas *test_canvas = new TCanvas;
+       test_canvas->Divide(1,2);
+       test_canvas->cd();
+       test_canvas->cd(1);
+       tib_hists[i]->DrawClone("colz");
+       tob_profiles[i]->DrawClone("sameE1");
+       test_canvas->cd(2);
+       tib_profiles[i]->DrawClone("E1");
+      
+       TString filename = "tib_" + hist_names[i] + ".pdf";
+       test_canvas->Print(pdf_dir + "/" + filename);
    }
-
 }
