@@ -24,6 +24,7 @@ std::vector<TString> parse_config(TString filename){
 
     std::vector<TString> files;
     while (std::getline(reader, line)){
+        if (line.front() == '$') continue;
         if (line.length() == 0) continue;
         char *cstr = new char[line.length() + 1]; 
         strcpy(cstr, line.c_str());
@@ -112,6 +113,7 @@ void make_graphs(std::vector<TString> filenames)
     // correct order when later iterating through this map
     //
     std::map< std::pair<unsigned int, unsigned int>, std::map<unsigned int, float> > valueMap;
+    std::map< std::pair<unsigned int, unsigned int>, std::map<unsigned int, float> > fedIdMap;
 
     while (( chEl=(TChainElement*)next() )) {
         TFile *f = TFile::Open(chEl->GetTitle());
@@ -138,10 +140,12 @@ void make_graphs(std::vector<TString> filenames)
         double Detid;
         double I2CAddress;
         double Threshold0;
+        double FedId;
 
         tree->SetBranchAddress("Detid",&Detid);
         tree->SetBranchAddress("I2CAddress",&I2CAddress);
         tree->SetBranchAddress("Threshold0",&Threshold0);
+        tree->SetBranchAddress("FedId",&FedId);
 
         TString treeName = tree->GetName();
 
@@ -161,10 +165,12 @@ void make_graphs(std::vector<TString> filenames)
             if( fabs( Threshold0 - 0xFFFF ) < 1e-6 ) {
                 badcounter++;
                 continue; }
+            if (FedId == 439) continue;
    //         if (entry % 1000 == 0) {
                 //std::cout << std::setprecision(10);
                 //std::cout << "DetID is " << Detid << " and I2C is " << I2CAddress << std::endl; }
             valueMap[ std::make_pair( Detid, I2CAddress ) ][iRun] = Threshold0;
+            fedIdMap[ std::make_pair( Detid, I2CAddress ) ][iRun] = FedId;
 
         }
         std::cout << "Tree " << treeName << " contained " << badcounter << " skipped entries out of " << tree->GetEntries() << " total." << std::endl;
@@ -173,7 +179,7 @@ void make_graphs(std::vector<TString> filenames)
 
     std::map< std::pair<unsigned int, unsigned int>, std::map<unsigned int, float> >::iterator it = valueMap.begin();
 
-    std::vector<std::pair< std::vector<double>, std::vector<double > > > vValues;
+    std::vector<std::pair<std::vector<double>, std::vector<double> > > vValues;
     std::map<std::pair<unsigned int, unsigned int>, TGraph*> vGraphs;
 
     unsigned int count = 0;
@@ -202,6 +208,13 @@ void make_graphs(std::vector<TString> filenames)
         std::vector<double> y;    
         for( std::map<unsigned int, float>::iterator innerIt = innerMap.begin(); innerIt != innerMap.end(); ++innerIt ) {
             x.push_back(innerIt->first);
+            if (abs((innerIt->second-refValue)/refValue) > 1) {
+                std::cout << "FedId " 
+                            << fedIdMap[it->first][innerIt->first] 
+                            << " (DetId, I2CAddress) "
+                            << it->first.first << ","
+                            << it->first.second
+                            << " run " << innerIt->first << " was bad" << std::endl;}
             y.push_back( (innerIt->second-refValue)/refValue );
         }
         vValues.push_back( std::make_pair( x, y ) );
@@ -214,7 +227,7 @@ void make_graphs(std::vector<TString> filenames)
 
     // make sure we have the right x and y range without relying on the
     // TGraph content
-    canvas->DrawFrame(230000,-0.9,280000,0.9);
+    canvas->DrawFrame(230000,-0.5,280000,0.5);
 
     TCanvas *canvas_layers = new TCanvas("canvas_layers","Canvas Layers",1500,1000);
 
@@ -242,12 +255,14 @@ void make_graphs(std::vector<TString> filenames)
     }
     for( Int_t i = 1; i <= 6; ++i ) {
         TVirtualPad *pad = tob_layers->cd(i);
-        pad->DrawFrame(230000,-0.9,280000,0.9,TString("TOB Layer ")+TString::Itoa(i,10) );
+        pad->DrawFrame(230000,-3,280000,15,TString("TOB Layer ")+TString::Itoa(i,10) );
     }
     for( Int_t i = 1; i <= 7; ++i ) {
         TVirtualPad *pad = tec_rings->cd(i);
         pad->DrawFrame(230000,-0.9,280000,0.9,TString("TEC Ring ")+TString::Itoa(i,10) );
     }
+    TCanvas *detail = new TCanvas("detail","Detail",1000,1000);
+    detail->DrawFrame(230000,-0.6,290000,0.6,TString("TOB Layer 3"));
     
     canvas->cd();
     std::map<std::pair<unsigned int, unsigned int>, TGraph*>::iterator graphIt = vGraphs.begin();
@@ -284,6 +299,9 @@ void make_graphs(std::vector<TString> filenames)
             unsigned int iLayer = layer( detid );
 
             if( iLayer < 1 || iLayer > 6 ) continue;
+            if (iLayer == 3) {
+                detail->cd();
+                graphIt->second->Draw("LPsame");}
 
             tob_layers->cd( iLayer );
             graphIt->second->GetXaxis()->SetTitle("Run number");
@@ -307,6 +325,7 @@ void make_graphs(std::vector<TString> filenames)
     canvas_rings->Print("pngs/ring_plots.png");
     tob_layers->Print("pngs/tob_layer_plots.png");
     tec_rings->Print("pngs/tec_ring_plots.png");
+    detail->Print("pngs/tob_detail.png");
 
     std::cout << "Real time : " << watch.RealTime() << std::endl;
     std::cout << "Cpu time  : " << watch.CpuTime() << std::endl;
