@@ -1,5 +1,5 @@
 #!/bin/bash
-root -l -q run_make_histograms.C'(  "config/tob_4c_filenames.txt",
+root -l -q run_make_partition_hists.C'(  "config/tob_4c_filenames.txt",
                                     "config/tib_4c_filenames.txt",
                                     "config/tecp_4c_filenames.txt",
                                     "config/tecm_4c_filenames.txt",
