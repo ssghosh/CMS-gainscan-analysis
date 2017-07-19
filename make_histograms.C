@@ -138,6 +138,8 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    Long64_t numentries = run_tree->GetEntries();
    Long64_t refentries = ref_tree->GetEntries();
    Long64_t bad_entry_counter = 0;
+   Long64_t bad_ref_counter = 0;
+   Long64_t nomatch_counter = 0;
    for (Long64_t i=0;i<numentries;i++) {
       run_tree->GetEntry(i);
    
@@ -147,12 +149,12 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
       }
      
       if (ref_tree->GetEntryWithIndex(detid,i2caddress)==-1) {
-         bad_entry_counter++;
+         nomatch_counter++;
          continue;
       }  
 
       if (!ref_isvalid) {
-         bad_entry_counter++;
+         bad_ref_counter++;
          continue;
       }
        
@@ -175,8 +177,10 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
       th_difflinknoise->Fill(this_run,percentage_linknoise);
       th_diffzerolight->Fill(this_run,percentage_zerolight);
    }
-   if (bad_entry_counter > 0) {
-      cout << run_filename << " contained " << to_string(bad_entry_counter) << " excluded entries out of " << to_string(numentries) << " total entries" << endl;
+   if (bad_entry_counter > 0 || bad_ref_counter > 0 || nomatch_counter > 0) {
+      cout << run_filename << " contained " << to_string(bad_entry_counter) << " invalid entries out of " << to_string(numentries) << " total entries" << endl;
+      cout << ref_filename << " (ref) contained " << to_string(bad_ref_counter) << " invalid entries out of " << to_string(numentries) << " total entries" << endl;
+      cout << run_filename << " contained " << to_string(nomatch_counter) << " entries with no match in ref out of " << to_string(numentries) << " total entries" << endl;
    }
    
    // scale all of the hists
