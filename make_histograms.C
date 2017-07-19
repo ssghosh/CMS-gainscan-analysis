@@ -145,16 +145,17 @@ void make_histograms(const TString run_filepath, const TString ref_filepath, con
    
       if (!run_isvalid) {
          bad_entry_counter++;
-         continue;
       }
      
       if (ref_tree->GetEntryWithIndex(detid,i2caddress)==-1) {
          nomatch_counter++;
-         continue;
       }  
 
       if (!ref_isvalid) {
          bad_ref_counter++;
+      }
+
+      if (!run_isvalid || ref_tree->GetEntryWithIndex(detid,i2caddress)==-1 || !ref_isvalid) {
          continue;
       }
        
